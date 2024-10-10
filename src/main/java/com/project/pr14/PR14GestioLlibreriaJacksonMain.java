@@ -4,10 +4,21 @@ import com.project.objectes.Llibre;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
+
+import java.io.*;
+
+
+/*Lectura del fitxer: Llegeix el fitxer llibres_input.json i carrega'l a una estructura de dades en memòria.
+Modificació: Canvia l'any de publicació del llibre amb id 1 a 1995.
+Afegit: Afegeix un nou llibre amb id 4, títol "Històries de la ciutat", autor "Miquel Soler", any 2022.
+Esborrat: Esborra el llibre amb id 2.
+Guardat: Guarda les dades modificades en un fitxer nou anomenat llibres_output_jakarta.json.
+ */
+
 
 /**
  * Classe principal que gestiona la lectura i el processament de fitxers JSON per obtenir dades de llibres.
@@ -50,8 +61,13 @@ public class PR14GestioLlibreriaJacksonMain {
      * @return Llista de llibres o null si hi ha hagut un error en la lectura.
      */
     public List<Llibre> carregarLlibres() {
-        // *************** CODI PRÀCTICA **********************/
-        return null; // Substitueix pel teu
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(dataFile, new TypeReference<List<Llibre>>() {});
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -62,7 +78,12 @@ public class PR14GestioLlibreriaJacksonMain {
      * @param nouAny Nou any de publicació.
      */
     public void modificarAnyPublicacio(List<Llibre> llibres, int id, int nouAny) {
-        // *************** CODI PRÀCTICA **********************/
+        for (Llibre llibre : llibres) {
+            if (llibre.getId() == id) {
+                llibre.setAny(nouAny);
+                break;
+            }
+        }
     }
 
     /**
@@ -72,7 +93,7 @@ public class PR14GestioLlibreriaJacksonMain {
      * @param nouLlibre Nou llibre a afegir.
      */
     public void afegirNouLlibre(List<Llibre> llibres, Llibre nouLlibre) {
-        // *************** CODI PRÀCTICA **********************/
+        llibres.add(nouLlibre);
     }
 
     /**
@@ -82,7 +103,12 @@ public class PR14GestioLlibreriaJacksonMain {
      * @param id Identificador del llibre a esborrar.
      */
     public void esborrarLlibre(List<Llibre> llibres, int id) {
-        // *************** CODI PRÀCTICA **********************/
+        for (Llibre llibre : llibres) {
+            if (llibre.getId() == id) {
+                llibres.remove(llibre);
+                break;
+            }
+        }
     }
 
     /**
@@ -91,6 +117,12 @@ public class PR14GestioLlibreriaJacksonMain {
      * @param llibres Llista de llibres a guardar.
      */
     public void guardarLlibres(List<Llibre> llibres) {
-        // *************** CODI PRÀCTICA **********************/        
+        File outputFile = new File(dataFile.getParent(), "llibres_output_jackson.json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writeValue(outputFile, llibres);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

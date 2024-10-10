@@ -2,11 +2,9 @@ package com.project.pr14;
 
 import jakarta.json.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.nio.*;
+import java.nio.file.*;
+import java.util.*;
 
 import com.project.objectes.Llibre;
 
@@ -51,8 +49,36 @@ public class PR14GestioLlibreriaJakartaMain {
      * @return Llista de llibres o null si hi ha hagut un error en la lectura.
      */
     public List<Llibre> carregarLlibres() {
-        // *************** CODI PRÀCTICA **********************/
-        return null; // Substitueix pel teu
+        FileReader reader = null;
+        JsonReader jsonReader = null;
+        try {
+            reader = new FileReader(dataFile);
+            jsonReader = Json.createReader(reader);
+            JsonArray jsonArray = jsonReader.readArray();
+            List<Llibre> llibres = new ArrayList<>();
+            for (JsonValue jsonValue : jsonArray) {
+                JsonObject jsonObject = (JsonObject) jsonValue;
+                int id = jsonObject.getInt("id");
+                String titol = jsonObject.getString("titol");
+                String autor = jsonObject.getString("autor");
+                int any = jsonObject.getInt("any");
+                llibres.add(new Llibre(id, titol, autor, any));
+            }
+            return llibres;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if (reader != null)
+                    reader.close();
+                if (jsonReader != null)
+                    jsonReader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     /**
@@ -63,7 +89,12 @@ public class PR14GestioLlibreriaJakartaMain {
      * @param nouAny Nou any de publicació.
      */
     public void modificarAnyPublicacio(List<Llibre> llibres, int id, int nouAny) {
-        // *************** CODI PRÀCTICA **********************/
+        for (Llibre llibre : llibres) {
+            if (llibre.getId() == id) {
+                llibre.setAny(nouAny);
+                break;
+            }
+        }
     }
 
     /**
@@ -73,7 +104,7 @@ public class PR14GestioLlibreriaJakartaMain {
      * @param nouLlibre Nou llibre a afegir.
      */
     public void afegirNouLlibre(List<Llibre> llibres, Llibre nouLlibre) {
-        // *************** CODI PRÀCTICA **********************/
+        llibres.add(nouLlibre);
     }
 
     /**
@@ -83,7 +114,12 @@ public class PR14GestioLlibreriaJakartaMain {
      * @param id Identificador del llibre a esborrar.
      */
     public void esborrarLlibre(List<Llibre> llibres, int id) {
-        // *************** CODI PRÀCTICA **********************/
+        for (Llibre llibre : llibres) {
+            if (llibre.getId() == id) {
+                llibres.remove(llibre);
+                break;
+            }
+        }
     }
 
     /**
@@ -92,6 +128,39 @@ public class PR14GestioLlibreriaJakartaMain {
      * @param llibres Llista de llibres a guardar.
      */
     public void guardarLlibres(List<Llibre> llibres) {
-        // *************** CODI PRÀCTICA **********************/
+        File outputFile = new File(dataFile.getParent(),"llibres_output_jakarta.json");
+        FileWriter writer = null;
+        JsonWriter jsonWriter = null;
+        try {
+            writer = new FileWriter(outputFile);
+            jsonWriter = Json.createWriter(writer);
+            JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+            for (Llibre llibre : llibres) {
+                jsonArrayBuilder.add(LlibreToJsonObject(llibre));
+            }
+            JsonArray jsonArray = jsonArrayBuilder.build();
+            jsonWriter.writeArray(jsonArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if (writer != null)
+                    writer.close();
+                if (jsonWriter != null)
+                    jsonWriter.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public JsonObject LlibreToJsonObject(Llibre llibre) {
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        jsonObjectBuilder.add("id", llibre.getId());
+        jsonObjectBuilder.add("titol", llibre.getTitol());
+        jsonObjectBuilder.add("autor", llibre.getAutor());
+        jsonObjectBuilder.add("any", llibre.getAny());
+        return jsonObjectBuilder.build();
     }
 }
